@@ -1,15 +1,51 @@
 Building configuration...
 
-Current configuration : 2053 bytes
+Current configuration : 2209 bytes
 !
-version 15.0
+version 15.1
 no service timestamps log datetime msec
 no service timestamps debug datetime msec
 no service password-encryption
 !
-hostname HQ-SW1
+hostname HQ-EDGE-R1
 !
-enable secret 5 $1$mERr$hx5rVt7rPNoS4wqbXKX7m0
+!
+!
+!
+ip dhcp excluded-address 192.168.1.1 192.168.1.10
+ip dhcp excluded-address 192.168.1.65 192.168.1.74
+ip dhcp excluded-address 192.168.1.193 192.168.1.202
+ip dhcp excluded-address 192.168.1.129 192.168.1.138
+!
+ip dhcp pool vlan2
+ network 192.168.1.0 255.255.255.192
+ default-router 192.168.1.1
+ dns-server 1.1.1.1
+ip dhcp pool vlan3
+ network 192.168.1.64 255.255.255.192
+ default-router 192.168.1.65
+ dns-server 1.1.1.1
+ip dhcp pool vlan4
+ network 192.168.1.128 255.255.255.192
+ default-router 192.168.1.129
+ dns-server 1.1.1.1
+!
+!
+!
+no ip cef
+no ipv6 cef
+!
+!
+!
+!
+license udi pid CISCO1941/K9 sn FTX1524KUCD-
+!
+!
+!
+!
+!
+!
+!
 !
 !
 !
@@ -17,100 +53,70 @@ enable secret 5 $1$mERr$hx5rVt7rPNoS4wqbXKX7m0
 !
 !
 spanning-tree mode pvst
-spanning-tree extend system-id
 !
-interface FastEthernet0/1
- switchport mode trunk
 !
-interface FastEthernet0/2
- switchport mode trunk
 !
-interface FastEthernet0/3
 !
-interface FastEthernet0/4
- switchport access vlan 2
- switchport mode access
 !
-interface FastEthernet0/5
- switchport access vlan 2
- switchport mode access
 !
-interface FastEthernet0/6
- switchport access vlan 2
- switchport mode access
+interface GigabitEthernet0/0
+ no ip address
+ ip nat inside
+ duplex auto
+ speed auto
 !
-interface FastEthernet0/7
- switchport access vlan 2
- switchport mode access
+interface GigabitEthernet0/0.4
+ no ip address
 !
-interface FastEthernet0/8
- switchport access vlan 2
- switchport mode access
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 2
+ ip address 192.168.1.1 255.255.255.192
+ ip nat inside
 !
-interface FastEthernet0/9
- switchport access vlan 3
- switchport mode access
+interface GigabitEthernet0/0.30
+ encapsulation dot1Q 3
+ ip address 192.168.1.65 255.255.255.192
+ ip nat inside
 !
-interface FastEthernet0/10
- switchport access vlan 3
- switchport mode access
-!
-interface FastEthernet0/11
- switchport access vlan 3
- switchport mode access
-!
-interface FastEthernet0/12
- switchport access vlan 3
- switchport mode access
-!
-interface FastEthernet0/13
- switchport access vlan 3
- switchport mode access
-!
-interface FastEthernet0/14
- switchport access vlan 4
- switchport mode access
-!
-interface FastEthernet0/15
- switchport access vlan 4
- switchport mode access
-!
-interface FastEthernet0/16
- switchport access vlan 4
- switchport mode access
-!
-interface FastEthernet0/17
- switchport access vlan 4
- switchport mode access
-!
-interface FastEthernet0/18
- switchport access vlan 4
- switchport mode access
-!
-interface FastEthernet0/19
-!
-interface FastEthernet0/20
-!
-interface FastEthernet0/21
-!
-interface FastEthernet0/22
-!
-interface FastEthernet0/23
-!
-interface FastEthernet0/24
+interface GigabitEthernet0/0.40
+ encapsulation dot1Q 4
+ ip address 192.168.1.129 255.255.255.192
+ ip nat inside
 !
 interface GigabitEthernet0/1
+ ip address 216.0.5.2 255.255.255.0
+ ip nat outside
+ duplex auto
+ speed auto
 !
-interface GigabitEthernet0/2
+interface GigabitEthernet0/0/0
+ ip address 192.168.2.1 255.255.255.0
+ ip nat inside
 !
 interface Vlan1
  no ip address
  shutdown
 !
-interface Vlan2
- ip address 192.168.1.2 255.255.255.0
+router eigrp 1
+ network 192.168.2.0
+ network 192.168.1.0 0.0.0.63
+ network 192.168.1.64 0.0.0.63
+ network 192.168.1.128 0.0.0.63
 !
-ip default-gateway 192.168.1.1
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+ip nat inside source static 192.168.3.10 216.0.5.10 
+ip nat inside source static 192.168.3.10 216.0.5.11 
+ip nat inside source static 192.168.3.10 216.0.5.12 
+ip classless
+ip route 0.0.0.0 0.0.0.0 216.0.5.1 
+!
+ip flow-export version 9
+!
+!
+access-list 1 permit 192.168.1.64 0.0.0.63
+access-list 1 permit 192.168.1.128 0.0.0.63
+access-list 1 permit 192.168.1.0 0.0.0.63
+!
 !
 !
 !
@@ -119,12 +125,11 @@ line con 0
  password cisco
  login
 !
+line aux 0
+!
 line vty 0 4
  password cisco
  login
-line vty 5 15
- login
-!
 !
 !
 !
